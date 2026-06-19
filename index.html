@@ -2,1770 +2,653 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Anime Vault Bot — Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0c4a6e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Anime Vault Bot v5.0 PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --sky-50: #f0f9ff;
-            --sky-100: #e0f2fe;
-            --sky-200: #bae6fd;
-            --sky-300: #7dd3fc;
-            --sky-400: #38bdf8;
-            --sky-500: #0ea5e9;
-            --sky-600: #0284c7;
-            --sky-700: #0369a1;
-            --sky-800: #075985;
-            --sky-900: #0c4a6e;
-            --sky-950: #082f49;
-            --accent: #0ea5e9;
-            --accent-light: #38bdf8;
-            --accent-dark: #0284c7;
-            --bg-primary: #f0f9ff;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-glass: rgba(255,255,255,0.72);
-            --text-primary: #0c4a6e;
-            --text-secondary: #075985;
-            --text-muted: #0369a1;
-            --border: #bae6fd;
-            --shadow: 0 4px 24px rgba(14,165,233,0.12);
-            --shadow-lg: 0 12px 48px rgba(14,165,233,0.18);
-            --radius: 16px;
-            --radius-sm: 10px;
-            --radius-lg: 24px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Custom scrollbar hidden */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideOutRight { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(14,165,233,0.35); } 50% { box-shadow: 0 0 0 12px rgba(14,165,233,0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes typewriter { from { width: 0; } to { width: 100%; } }
-
-        .anim-fade { animation: fadeIn 0.5s ease-out forwards; }
-        .anim-scale { animation: scaleIn 0.4s ease-out forwards; }
-        .anim-delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .anim-delay-2 { animation-delay: 0.2s; opacity: 0; }
-        .anim-delay-3 { animation-delay: 0.3s; opacity: 0; }
-        .anim-delay-4 { animation-delay: 0.4s; opacity: 0; }
-
-        /* App Container */
-        .app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            min-width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--accent);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 16px rgba(14,165,233,0.35);
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
-
-        .logo-version {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--accent);
-            background: var(--sky-100);
-            padding: 2px 10px;
-            border-radius: 20px;
-            margin-top: 2px;
-            display: inline-block;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px 10px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 13px 16px;
-            margin-bottom: 4px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-item:hover {
-            background: var(--sky-100);
-            color: var(--accent-dark);
-        }
-
-        .nav-item.active {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(14,165,233,0.35);
-        }
-
-        .nav-item svg {
-            width: 22px;
-            height: 22px;
-            flex-shrink: 0;
-        }
-
-        .nav-item.active svg {
-            stroke: #fff;
-        }
-
-        .sidebar-footer {
-            padding: 16px;
-            border-top: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Top Header */
-        .top-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 28px;
-            background: var(--bg-glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            z-index: 50;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 10px;
-            color: var(--text-primary);
-        }
-
-        .menu-toggle:hover { background: var(--sky-100); }
-
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--sky-100);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* User Profile Card */
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            box-shadow: var(--shadow);
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        .user-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--accent);
-            box-shadow: 0 0 0 4px var(--sky-100);
-            flex-shrink: 0;
-        }
-
-        .user-avatar-fallback {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 26px;
-            font-weight: 700;
-            border: 3px solid var(--accent-light);
-            box-shadow: 0 0 0 4px var(--sky-100);
-            flex-shrink: 0;
-        }
-
-        .user-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .user-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-username {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .user-id {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--accent);
-            background: var(--sky-100);
-            padding: 3px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            font-weight: 500;
-        }
-
-        .user-badge {
-            background: var(--accent);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 6px 14px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-            animation: pulse-glow 2s infinite;
-        }
-
-        /* Content Scroll Area */
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 24px 28px;
-        }
-
-        /* Section */
-        .section {
-            display: none;
-            max-width: 900px;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .section-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .section-subtitle {
-            font-size: 15px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        /* Cards */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-light);
-        }
-
-        .card:hover::before { transform: scaleX(1); }
-
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--sky-100);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            color: var(--accent);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .card-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* Stats Row */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-            border-color: var(--accent-light);
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Command List */
-        .cmd-category {
-            margin-bottom: 24px;
-        }
-
-        .cmd-category-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--accent);
-            display: inline-block;
-        }
-
-        .cmd-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .cmd-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 14px 18px;
-            transition: all 0.2s;
-        }
-
-        .cmd-item:hover {
-            border-color: var(--accent-light);
-            background: var(--sky-50);
-        }
-
-        .cmd-name {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--accent);
-            background: var(--sky-100);
-            padding: 4px 10px;
-            border-radius: 6px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .cmd-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            padding-top: 4px;
-        }
-
-        /* Developer Profile */
-        .dev-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .dev-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 120px;
-            background: var(--accent);
-            opacity: 0.1;
-        }
-
-        .dev-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 42px;
-            font-weight: 800;
-            margin: 0 auto 20px;
-            border: 4px solid var(--bg-secondary);
-            box-shadow: 0 8px 32px rgba(14,165,233,0.35);
-            position: relative;
-            z-index: 1;
-        }
-
-        .dev-name {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .dev-role {
-            font-size: 15px;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .dev-bio {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.8;
-            max-width: 500px;
-            margin: 0 auto 24px;
-        }
-
-        .dev-social {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .dev-social a {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            background: var(--sky-100);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            transition: all 0.3s;
-            border: 1px solid var(--border);
-        }
-
-        .dev-social a:hover {
-            background: var(--accent);
-            color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(14,165,233,0.3);
-        }
-
-        /* Feature showcase */
-        .feature-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .feature-item {
-            flex: 1;
-            min-width: 200px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.3s;
-        }
-
-        .feature-item:hover {
-            border-color: var(--accent-light);
-            box-shadow: var(--shadow);
-        }
-
-        .feature-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--sky-100);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            flex-shrink: 0;
-        }
-
-        .feature-text {
-            flex: 1;
-        }
-
-        .feature-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-
-        .feature-desc {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* Status badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--sky-100);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--accent-dark);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #22c55e;
-            animation: pulse-glow 2s infinite;
-        }
-
-        /* Popup Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(12,74,110,0.45);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--bg-secondary);
-            border-radius: var(--radius-lg);
-            max-width: 480px;
-            width: 100%;
-            max-height: 85vh;
-            overflow: hidden;
-            box-shadow: 0 24px 80px rgba(14,165,233,0.25);
-            animation: scaleIn 0.3s ease-out;
-            border: 1px solid var(--border);
-        }
-
-        .modal-header {
-            padding: 24px 24px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .modal-close {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-
-        .modal-close:hover {
-            background: var(--sky-100);
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 20px 24px 24px;
-            overflow-y: auto;
-            max-height: 60vh;
-        }
-
-        .modal-footer {
-            padding: 16px 24px 24px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(14,165,233,0.3);
-        }
-
-        .btn-secondary {
-            background: var(--sky-100);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover { background: var(--sky-200); }
-
-        /* API integration badge */
-        .api-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .api-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 16px;
-            background: var(--sky-50);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            transition: all 0.2s;
-        }
-
-        .api-item:hover {
-            border-color: var(--accent);
-            background: var(--sky-100);
-        }
-
-        .api-icon {
-            color: var(--accent);
-        }
-
-        .api-name {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        /* Code block */
-        .code-block {
-            background: var(--sky-950);
-            color: #e0f2fe;
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            overflow-x: auto;
-            margin-top: 8px;
-            line-height: 1.6;
-        }
-
-        .code-block .comment { color: #7dd3fc; opacity: 0.7; }
-        .code-block .keyword { color: #38bdf8; }
-        .code-block .string { color: #86efac; }
-
-        /* Hero banner */
-        .hero {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 36px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: var(--accent);
-            opacity: 0.06;
-            border-radius: 50%;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--sky-100);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
-            margin-bottom: 16px;
-        }
-
-        .hero-title {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-        }
-
-        .hero-desc {
-            font-size: 15px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            max-width: 600px;
-        }
-
-        /* Tag */
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--sky-100);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent-dark);
-            margin-right: 6px;
-            margin-bottom: 6px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-                box-shadow: 4px 0 24px rgba(0,0,0,0.1);
-            }
-            .sidebar.open { transform: translateX(0); }
-            .menu-toggle { display: flex; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .card-grid { grid-template-columns: 1fr; }
-            .api-grid { grid-template-columns: repeat(2, 1fr); }
-            .content-scroll { padding: 16px; }
-            .hero { padding: 24px; }
-            .hero-title { font-size: 24px; }
-            .dev-card { padding: 28px 20px; }
-        }
-
-        @media (max-width: 480px) {
-            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .stat-value { font-size: 22px; }
-            .user-profile { flex-direction: column; text-align: center; }
-            .feature-row { flex-direction: column; }
-        }
-
-        /* Overlay for mobile sidebar */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(12,74,110,0.3);
-            z-index: 99;
-        }
-        .sidebar-overlay.show { display: block; }
-
-        /* Gradient text */
-        .gradient-text {
-            background: var(--accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Tech spec item */
-        .spec-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .spec-item:last-child { border-bottom: none; }
-        .spec-label { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 100px; }
-        .spec-value { font-size: 14px; color: var(--text-primary); font-weight: 600; }
-
-        /* Timeline */
-        .timeline { position: relative; padding-left: 24px; }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border);
-        }
-        .timeline-item { position: relative; margin-bottom: 20px; }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -22px;
-            top: 4px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: 2px solid var(--bg-secondary);
-        }
-        .timeline-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-        .timeline-desc { font-size: 13px; color: var(--text-secondary); }
-
-        /* Loading shimmer */
-        .shimmer {
-            background: linear-gradient(90deg, var(--sky-100) 25%, var(--sky-200) 50%, var(--sky-100) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 8px;
-        }
+    /* ═══════════════════════════════════════════
+       CRITICAL CSS — Above the fold
+       ═══════════════════════════════════════════ */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+    --sky-50:#f0f9ff;--sky-100:#e0f2fe;--sky-200:#bae6fd;--sky-300:#7dd3fc;
+    --sky-400:#38bdf8;--sky-500:#0ea5e9;--sky-600:#0284c7;--sky-700:#0369a1;
+    --sky-800:#075985;--sky-900:#0c4a6e;--sky-950:#082f49;
+    --glass-bg:rgba(255,255,255,0.65);--glass-border:rgba(186,230,253,0.5);
+    --glass-dark-bg:rgba(8,47,73,0.6);--glass-dark-border:rgba(56,189,248,0.15);
+    --bg:var(--sky-50);--card:#fff;--text:#0c4a6e;--text2:#075985;--text3:#0369a1;
+    --border:#bae6fd;--accent:#0ea5e9;--accent-d:#0284c7;--accent-l:#38bdf8;
+    --shadow:0 8px 32px rgba(14,165,233,0.12);--shadow-lg:0 20px 60px rgba(14,165,233,0.18);
+    }
+    [data-theme="dark"]{
+    --bg:#08101f;--card:rgba(15,30,60,0.7);--text:#e0f2fe;--text2:#bae6fd;--text3:#7dd3fc;
+    --border:rgba(56,189,248,0.15);--glass-bg:var(--glass-dark-bg);--glass-border:var(--glass-dark-border);
+    --shadow:0 8px 32px rgba(0,0,0,0.4);--shadow-lg:0 20px 60px rgba(0,0,0,0.5);
+    }
+    html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+    ::-webkit-scrollbar{width:0!important;display:none}
+
+    /* ═══ LOADER ═══ */
+    #loader{position:fixed;inset:0;z-index:99999;background:var(--sky-950);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+    #loader.done{opacity:0;visibility:hidden}
+    .loader-logo{width:72px;height:72px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 0 60px rgba(14,165,233,0.5);animation:loaderPulse 1.5s ease-in-out infinite}
+    .loader-logo svg{width:36px;height:36px}
+    .loader-text{color:#e0f2fe;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:16px}
+    .loader-sub{color:#7dd3fc;font-size:12px;font-weight:500;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px}
+    .loader-bar{width:200px;height:3px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden}
+    .loader-bar-inner{height:100%;width:0%;background:var(--accent);border-radius:3px;animation:loaderFill 1.8s ease-out forwards}
+    .loader-ver{position:absolute;bottom:24px;color:rgba(255,255,255,0.3);font-size:11px;font-weight:600;letter-spacing:2px}
+    @keyframes loaderPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(14,165,233,0.4)}50%{transform:scale(1.08);box-shadow:0 0 70px rgba(14,165,233,0.7)}}
+    @keyframes loaderFill{0%{width:0%}50%{width:70%}100%{width:100%}}
+
+    /* ═══ LAYOUT ═══ */
+    .app{display:flex;height:100vh;width:100vw;overflow:hidden}
+    .sidebar{width:270px;min-width:270px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(8,16,31,0.5);backdrop-filter:blur(3px);z-index:99}
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);z-index:50;position:sticky;top:0}
+    .content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;-webkit-overflow-scrolling:touch}
+    @media(max-width:768px){.sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:8px 0 40px rgba(0,0,0,.15)}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.content{padding:16px}}
+    @media(max-width:480px){.content{padding:12px}}
+
+    /* ═══ SIDEBAR ═══ */
+    .sb-head{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo-box{width:42px;height:42px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(14,165,233,.35)}
+    .logo-box svg{width:22px;height:22px}
+    .logo-text{font-size:19px;font-weight:800;letter-spacing:-.5px;color:var(--text)}
+    .logo-ver{font-size:10px;font-weight:700;color:var(--accent);background:var(--sky-100);padding:2px 8px;border-radius:10px;display:inline-block;letter-spacing:.5px;margin-top:2px}
+    .sb-nav{flex:1;overflow-y:auto;padding:12px}
+    .nav-item{display:flex;align-items:center;gap:13px;padding:12px 14px;margin-bottom:3px;border-radius:10px;cursor:pointer;transition:all .2s;color:var(--text2);font-size:13px;font-weight:600;border:none;background:none;width:100%;font-family:inherit}
+    .nav-item:hover{background:var(--sky-100);color:var(--accent-d)}
+    .nav-item.on{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(14,165,233,.35)}
+    .nav-item svg{width:20px;height:20px;flex-shrink:0;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+    .nav-item.on svg{stroke:#fff}
+    .sb-foot{padding:14px;font-size:11px;color:var(--text3);text-align:center;border-top:1px solid var(--border);font-weight:500}
+
+    /* ═══ GLASS CARDS ═══ */
+    .glass{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:18px;transition:all .3s ease}
+    .glass:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--accent-l)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;transition:all .3s ease;position:relative;overflow:hidden}
+    .card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transition:transform .3s;border-radius:18px 18px 0 0}
+    .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent-l)}
+    .card:hover::after{transform:scaleX(1)}
+    .card-icon{width:44px;height:44px;background:var(--sky-100);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:14px}
+    .card-icon svg{width:22px;height:22px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+    .card-title{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+    .card-desc{font-size:12px;color:var(--text2);line-height:1.6}
+
+    /* ═══ USER PROFILE ═══ */
+    .uprofile{display:flex;align-items:center;gap:18px;padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+    .uprofile::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:var(--accent);opacity:.06;border-radius:50%}
+    .uavatar{width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);box-shadow:0 0 0 4px var(--sky-100);flex-shrink:0;position:relative;z-index:1}
+    .uavatar-fb{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:800;border:3px solid var(--accent-l);box-shadow:0 0 0 4px var(--sky-100);flex-shrink:0;position:relative;z-index:1}
+    .uinfo{flex:1;min-width:0;position:relative;z-index:1}
+    .uname{font-size:18px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;color:var(--text)}
+    .uhandle{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:4px}
+    .uid{font-family:'SF Mono',monospace;font-size:11px;color:var(--accent);background:var(--sky-100);padding:3px 12px;border-radius:20px;display:inline-block;font-weight:600}
+    .ubadge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:7px 14px;border-radius:20px;letter-spacing:.5px;flex-shrink:0;box-shadow:0 4px 16px rgba(14,165,233,.3);animation:pulseBadge 2.5s infinite}
+    @keyframes pulseBadge{0%,100%{box-shadow:0 0 0 0 rgba(14,165,233,.4)}50%{box-shadow:0 0 0 10px rgba(14,165,233,0)}}
+
+    /* ═══ STATS ═══ */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 10px;text-align:center;transition:all .3s;cursor:default}
+    .stat:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--accent-l)}
+    .stat-n{font-size:26px;font-weight:800;color:var(--accent);margin-bottom:3px;line-height:1}
+    .stat-l{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+    @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+    /* ═══ HERO ═══ */
+    .hero{position:relative;overflow:hidden;margin-bottom:22px}
+    .hero-bg{position:absolute;inset:0;background:var(--card);border-radius:18px;z-index:0}
+    .hero-orb{position:absolute;top:-40%;right:-8%;width:350px;height:350px;background:var(--accent);opacity:.06;border-radius:50%}
+    .hero-inner{position:relative;z-index:1;padding:32px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--sky-100);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--accent);margin-bottom:14px}
+    .hero-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulseBadge 2s infinite}
+    .hero-title{font-size:30px;font-weight:900;letter-spacing:-1px;margin-bottom:10px;color:var(--text);line-height:1.2}
+    .hero-title span{color:var(--accent)}
+    .hero-desc{font-size:14px;color:var(--text2);line-height:1.7;max-width:560px;margin-bottom:18px}
+    .hero-tags{display:flex;gap:8px;flex-wrap:wrap}
+    .htag{display:inline-flex;align-items:center;gap:5px;background:var(--sky-100);border:1px solid var(--border);border-radius:16px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--accent-d)}
+    .htag svg{width:12px;height:12px;stroke-width:3}
+    @media(max-width:480px){.hero-title{font-size:22px}.hero-inner{padding:22px}}
+
+    /* ═══ GRIDS ═══ */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:20px}
+    @media(max-width:640px){.grid{grid-template-columns:1fr}}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
+    @media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+
+    /* ═══ SECTIONS ═══ */
+    .sec{display:none;max-width:900px;animation:fadeUp .4s ease-out}
+    .sec.on{display:block}
+    .sec-t{font-size:26px;font-weight:900;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+    .sec-s{font-size:14px;color:var(--text3);margin-bottom:22px;line-height:1.6}
+
+    /* ═══ COMMANDS ═══ */
+    .cmdcat{margin-bottom:22px}
+    .cmdt{font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--accent);display:inline-block}
+    .cmd{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:6px;transition:all .2s}
+    .cmd:hover{border-color:var(--accent-l);background:var(--sky-50)}
+    .cmd-n{font-family:'SF Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);background:var(--sky-100);padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+    .cmd-d{font-size:12px;color:var(--text2);line-height:1.5;padding-top:3px}
+
+    /* ═══ DEV CARD ═══ */
+    .devcard{text-align:center;padding:40px 30px;position:relative}
+    .devcard::before{content:'';position:absolute;top:0;left:0;right:0;height:100px;background:var(--accent);opacity:.08}
+    .devavatar{width:96px;height:96px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:40px;font-weight:800;margin:0 auto 18px;border:4px solid var(--card);box-shadow:0 8px 32px rgba(14,165,233,.35);position:relative;z-index:1}
+    .devname{font-size:24px;font-weight:800;color:var(--text);margin-bottom:3px}
+    .devrole{font-size:14px;color:var(--accent);font-weight:700;margin-bottom:18px}
+    .devbio{font-size:13px;color:var(--text2);line-height:1.8;max-width:500px;margin:0 auto 24px}
+    .devrow{display:flex;justify-content:center;gap:30px;margin-bottom:24px}
+    .devn{font-size:22px;font-weight:800;color:var(--accent)}
+    .devl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    .devsoc{display:flex;justify-content:center;gap:10px}
+    .devsoc a{width:44px;height:44px;border-radius:12px;background:var(--sky-100);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:all .3s}
+    .devsoc a:hover{background:var(--accent);color:#fff;transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,165,233,.3)}
+
+    /* ═══ FEATURE ROWS ═══ */
+    .feat{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;transition:all .3s}
+    .feat:hover{border-color:var(--accent-l);box-shadow:var(--shadow)}
+    .featicon{width:42px;height:42px;background:var(--sky-100);border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+    .featicon svg{width:20px;height:20px;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+    .featt{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+    .featd{font-size:11px;color:var(--text3)}
+
+    /* ═══ API GRID ═══ */
+    .apig{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media(max-width:480px){.apig{grid-template-columns:repeat(2,1fr)}}
+    .apitem{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:var(--sky-50);border:1px solid var(--border);border-radius:12px;transition:all .2s}
+    .apitem:hover{border-color:var(--accent);background:var(--sky-100)}
+    .apitem svg{color:var(--accent)}
+    .apin{font-size:11px;font-weight:700;color:var(--text2);text-align:center}
+
+    /* ═══ TIMELINE ═══ */
+    .tl{position:relative;padding-left:22px}
+    .tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--border)}
+    .tli{position:relative;margin-bottom:16px}
+    .tli::before{content:'';position:absolute;left:-20px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid var(--card)}
+    .tlt{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+    .tld{font-size:12px;color:var(--text2)}
+
+    /* ═══ SPEC ROWS ═══ */
+    .spec{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .spec:last-child{border-bottom:none}
+    .specl{font-size:12px;color:var(--text3);font-weight:600;min-width:110px}
+    .specv{font-size:13px;color:var(--text);font-weight:700}
+
+    /* ═══ CODE BLOCK ═══ */
+    .codeblock{background:var(--sky-950);color:#e0f2fe;border-radius:12px;padding:16px;font-family:'SF Mono',monospace;font-size:11px;overflow-x:auto;line-height:1.7;margin-top:10px}
+    .codeblock .cm{color:#7dd3fc;opacity:.7}
+
+    /* ═══ MODAL ═══ */
+    .modal-o{position:fixed;inset:0;background:rgba(8,16,31,.5);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:fadeIn .2s}
+    .modal-o.show{display:flex}
+    .modal{background:var(--card);border-radius:22px;max-width:440px;width:100%;max-height:82vh;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--glass-border);animation:scaleIn .25s ease-out}
+    .modal-h{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between}
+    .modal-t{font-size:17px;font-weight:800;color:var(--text)}
+    .modal-x{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:.2s}
+    .modal-x:hover{background:var(--sky-100);color:var(--text)}
+    .modal-b{padding:16px 24px 24px;overflow-y:auto;max-height:55vh}
+    .modal-f{padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end}
+    .btn{padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .2s}
+    .btn-p{background:var(--accent);color:#fff}
+    .btn-p:hover{background:var(--accent-d);transform:translateY(-1px);box-shadow:0 8px 24px rgba(14,165,233,.3)}
+    .btn-s{background:var(--sky-100);color:var(--text);border:1px solid var(--border)}
+    .btn-s:hover{background:var(--sky-200)}
+
+    /* ═══ TOAST ═══ */
+    #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--sky-950);color:#fff;padding:12px 24px;border-radius:14px;font-size:13px;font-weight:600;z-index:2000;opacity:0;transition:all .35s;box-shadow:0 12px 40px rgba(0,0,0,.3);pointer-events:none;white-space:nowrap}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ═══ TOGGLE ═══ */
+    .menu-btn{display:none;background:none;border:none;cursor:pointer;padding:8px;border-radius:10px;color:var(--text);margin-right:8px}
+    .menu-btn:hover{background:var(--sky-100)}
+    .menu-btn svg{width:22px;height:22px}
+    @media(max-width:768px){.menu-btn{display:flex}}
+
+    /* ═══ STATUS ═══ */
+    .status-on{display:inline-flex;align-items:center;gap:6px;color:#22c55e;font-size:12px;font-weight:700}
+    .status-on::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulseBadge 2s infinite}
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+    .stag{animation:fadeUp .5s ease-out both}
+    .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.24s}
+    .d4{animation-delay:.32s}.d5{animation-delay:.40s}.d6{animation-delay:.48s}
+
+    /* ═══ MISC ═══ */
+    .page-title{font-size:20px;font-weight:800;color:var(--text)}
+    .page-sub{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+    .hdr{display:flex;align-items:center;gap:14px}
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Overlay (Mobile) -->
-        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- Sidebar -->
-        <nav class="sidebar no-scrollbar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="logo-text">Anime Vault</div>
-                        <div class="logo-version">v5.0 PRO</div>
-                    </div>
-                </div>
-            </div>
-            <div class="sidebar-nav no-scrollbar">
-                <div class="nav-item active" onclick="navTo('home', this)" data-section="home">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    Home
-                </div>
-                <div class="nav-item" onclick="navTo('features', this)" data-section="features">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    Features
-                </div>
-                <div class="nav-item" onclick="navTo('commands', this)" data-section="commands">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
-                    Commands
-                </div>
-                <div class="nav-item" onclick="navTo('tech', this)" data-section="tech">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                    Tech Stack
-                </div>
-                <div class="nav-item" onclick="navTo('developer', this)" data-section="developer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Developer
-                </div>
-                <div class="nav-item" onclick="navTo('about', this)" data-section="about">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    About
-                </div>
-            </div>
-            <div class="sidebar-footer">
-                Crafted with precision in India
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Header -->
-            <header class="top-header">
-                <div style="display:flex;align-items:center;gap:16px;">
-                    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                    </button>
-                    <div>
-                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:1px;">Telegram Web App</div>
-                        <div class="header-title" id="pageTitle">Dashboard</div>
-                    </div>
-                </div>
-                <div class="header-actions">
-                    <button class="btn-icon" onclick="showModal('infoModal')" title="Bot Info">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Content Scroll Area -->
-            <div class="content-scroll no-scrollbar" id="contentArea">
-
-                <!-- HOME SECTION -->
-                <div class="section active" id="home">
-                    <div class="hero anim-fade">
-                        <div class="hero-badge">
-                            <span class="status-dot"></span>
-                            Bot Status: Online & Running
-                        </div>
-                        <div class="hero-title">Welcome to <span class="gradient-text">Anime Vault</span></div>
-                        <div class="hero-desc">The ultimate anime content management bot for Telegram. Built with enterprise-grade architecture, featuring smart search, multi-quality streaming, PPV system, and powerful admin tools.</div>
-                        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-                            <span class="tag">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                Python 3
-                            </span>
-                            <span class="tag">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                MongoDB
-                            </span>
-                            <span class="tag">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                Flask
-                            </span>
-                            <span class="tag">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                Jikan API
-                            </span>
-                            <span class="tag">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                AniList GraphQL
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- User Profile Card -->
-                    <div class="user-profile" id="userProfile" style="margin-bottom:24px;">
-                        <div class="user-avatar-fallback" id="userAvatarFallback">AV</div>
-                        <img class="user-avatar" id="userAvatar" src="" alt="" style="display:none;">
-                        <div class="user-info">
-                            <div class="user-name" id="userName">Loading...</div>
-                            <div class="user-username" id="userUsername">@username</div>
-                            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-                                <div class="user-id" id="userId">UID: ---</div>
-                            </div>
-                        </div>
-                        <div class="user-badge">TG USER</div>
-                    </div>
-
-                    <!-- Stats -->
-                    <div class="stats-row anim-fade anim-delay-1">
-                        <div class="stat-box">
-                            <div class="stat-value">50+</div>
-                            <div class="stat-label">Commands</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">5.0</div>
-                            <div class="stat-label">Version</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">6+</div>
-                            <div class="stat-label">APIs</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">99.9%</div>
-                            <div class="stat-label">Uptime</div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Feature Cards -->
-                    <div class="section-title anim-fade anim-delay-2" style="font-size:20px;margin-bottom:16px;">Core Capabilities</div>
-                    <div class="card-grid anim-fade anim-delay-3">
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                            </div>
-                            <div class="card-title">Smart Upload System</div>
-                            <div class="card-desc">Multi-quality anime uploads with auto episode parsing, AniList integration, and batch processing with live checklist tracking.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
-                            </div>
-                            <div class="card-title">Smart Search</div>
-                            <div class="card-desc">Multi-API anime search with Jikan, AniList GraphQL, and DB fallback. Relevance scoring and recommendation engine built-in.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-                            </div>
-                            <div class="card-title">PPV Coin System</div>
-                            <div class="card-desc">Full pay-per-view economy with coin management, daily bonuses, referral rewards, streak tracking, and leaderboard rankings.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            </div>
-                            <div class="card-title">Anti-Leech Protection</div>
-                            <div class="card-desc">Content protection with protected forwarding, auto-delete timers, watermark system, and secure file delivery pipeline.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            </div>
-                            <div class="card-title">FSUB System</div>
-                            <div class="card-desc">Force subscription engine with public/private channel support, join request handling, invite link generation, and smart caching.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                            </div>
-                            <div class="card-title">Broadcast Engine</div>
-                            <div class="card-desc">Mass messaging with progress tracking, copy-forward support, pin capability, and detailed delivery statistics logging.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FEATURES SECTION -->
-                <div class="section" id="features">
-                    <div class="section-title">Platform Features</div>
-                    <div class="section-subtitle">Comprehensive feature set powering the Anime Vault ecosystem</div>
-
-                    <div class="feature-row">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Ultra Caption Parser</div>
-                                <div class="feature-desc">Extracts anime name, episode, quality, language, season</div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Multi-Quality Support</div>
-                                <div class="feature-desc">4K, 1080p, 720p, 480p, 360p, 240p handling</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-row">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Auto-Delete System</div>
-                                <div class="feature-desc">Configurable temp files with expiry warnings</div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Layered Caching</div>
-                                <div class="feature-desc">Multi-tier cache for settings, FSUB, filters, anime data</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-row">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Filter System</div>
-                                <div class="feature-desc">Group auto-response triggers with DMCA support</div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Anime Requests</div>
-                                <div class="feature-desc">User request queue with voting system</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-row">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Watermark System</div>
-                                <div class="feature-desc">Text + image watermarking on file delivery</div>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                            </div>
-                            <div class="feature-text">
-                                <div class="feature-title">Activity Analytics</div>
-                                <div class="feature-desc">Detailed user activity tracking and summaries</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:16px;">
-                        <div class="card-title" style="margin-bottom:12px;">API Integrations</div>
-                        <div class="api-grid">
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
-                                </div>
-                                <div class="api-name">Jikan API</div>
-                            </div>
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                                </div>
-                                <div class="api-name">AniList GraphQL</div>
-                            </div>
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                                </div>
-                                <div class="api-name">Telegram Bot API</div>
-                            </div>
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                                </div>
-                                <div class="api-name">MongoDB</div>
-                            </div>
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                                </div>
-                                <div class="api-name">Nekos.best</div>
-                            </div>
-                            <div class="api-item">
-                                <div class="api-icon">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>
-                                </div>
-                                <div class="api-name">ShrinkMe</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- COMMANDS SECTION -->
-                <div class="section" id="commands">
-                    <div class="section-title">Bot Commands</div>
-                    <div class="section-subtitle">Complete command reference for users and administrators</div>
-
-                    <div class="cmd-category">
-                        <div class="cmd-category-title">User Commands</div>
-                        <div class="cmd-list">
-                            <div class="cmd-item"><div class="cmd-name">/start</div><div class="cmd-desc">Initialize bot, show welcome card with anime info and navigation buttons</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/help</div><div class="cmd-desc">Display complete help menu with all available commands</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/id</div><div class="cmd-desc">Show your Telegram user ID and chat ID information</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/mycoins</div><div class="cmd-desc">View your coin balance, download count, rank, and membership info</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/profile</div><div class="cmd-desc">Display detailed profile card with streak, referrals, and status</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/search</div><div class="cmd-desc">Search anime by name with multi-API smart search and recommendations</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/daily</div><div class="cmd-desc">Claim daily coin bonus with streak tracking and progress bar</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/leaderboard</div><div class="cmd-desc">View top users ranked by total downloads with medal system</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/top</div><div class="cmd-desc">Show most popular downloaded anime in the database</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/recent</div><div class="cmd-desc">Display recently uploaded episodes with quality info</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/trending</div><div class="cmd-desc">Fetch current trending anime from Jikan API with images</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/request</div><div class="cmd-desc">Submit an anime request with voting system support</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/requests</div><div class="cmd-desc">View all pending anime requests with vote counts</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/referral</div><div class="cmd-desc">Get your personal referral link and earnings summary</div></div>
-                        </div>
-                    </div>
-
-                    <div class="cmd-category">
-                        <div class="cmd-category-title">Admin Commands</div>
-                        <div class="cmd-list">
-                            <div class="cmd-item"><div class="cmd-name">/anime</div><div class="cmd-desc">Start anime episode upload mode with quality selection</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/batch</div><div class="cmd-desc">Upload multiple episodes in batch with range support</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/free</div><div class="cmd-desc">Upload free files accessible without PPV</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/stats</div><div class="cmd-desc">View comprehensive bot statistics and analytics</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/settings</div><div class="cmd-desc">Configure bot settings via interactive panel</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/broadcast</div><div class="cmd-desc">Send message to all users with progress tracking</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/broadcastpin</div><div class="cmd-desc">Broadcast and auto-pin message for all users</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/ban</div><div class="cmd-desc">Ban a user by ID or reply with reason logging</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/unban</div><div class="cmd-desc">Remove ban from a user restoring full access</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/banlist</div><div class="cmd-desc">Paginated list of all banned users with details</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/addcoins</div><div class="cmd-desc">Add coins to a user's wallet</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/removecoins</div><div class="cmd-desc">Deduct coins from a user's balance</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/checkcoins</div><div class="cmd-desc">View any user's current coin balance</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/filter</div><div class="cmd-desc">Create auto-response filter for group chats</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/filters</div><div class="cmd-desc">List all configured filters with triggers</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/delfilter</div><div class="cmd-desc">Remove a filter by index number</div></div>
-                        </div>
-                    </div>
-
-                    <div class="cmd-category">
-                        <div class="cmd-category-title">Owner Commands</div>
-                        <div class="cmd-list">
-                            <div class="cmd-item"><div class="cmd-name">/addadmin</div><div class="cmd-desc">Promote a user to admin with full privileges</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/remadmin</div><div class="cmd-desc">Demote an admin back to regular user</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/adminlist</div><div class="cmd-desc">Display all admins with usernames and IDs</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/setdb</div><div class="cmd-desc">Set database channel for file storage</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/setlog</div><div class="cmd-desc">Configure log channel for activity tracking</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/addfsub</div><div class="cmd-desc">Add force-subscription channel</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/remfsub</div><div class="cmd-desc">Remove FSUB channel with cache clear</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/ppv</div><div class="cmd-desc">Toggle pay-per-view system on/off</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/antileech</div><div class="cmd-desc">Enable or disable content protection</div></div>
-                            <div class="cmd-item"><div class="cmd-name">/autodelete</div><div class="cmd-desc">Configure auto-delete timer for files</div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TECH STACK SECTION -->
-                <div class="section" id="tech">
-                    <div class="section-title">Technology Stack</div>
-                    <div class="section-subtitle">Enterprise-grade architecture powering Anime Vault Bot v5.0 PRO</div>
-
-                    <div class="card" style="margin-bottom:16px;">
-                        <div class="card-title" style="margin-bottom:16px;">Technical Specifications</div>
-                        <div class="spec-item"><div class="spec-label">Language</div><div class="spec-value">Python 3.11+</div></div>
-                        <div class="spec-item"><div class="spec-label">Bot Framework</div><div class="spec-value">pyTelegramBotAPI (telebot)</div></div>
-                        <div class="spec-item"><div class="spec-label">Web Server</div><div class="spec-value">Flask (Keep-Alive)</div></div>
-                        <div class="spec-item"><div class="spec-label">Database</div><div class="spec-value">MongoDB (pymongo)</div></div>
-                        <div class="spec-item"><div class="spec-label">Scheduler</div><div class="spec-value">APScheduler</div></div>
-                        <div class="spec-item"><div class="spec-label">HTTP Client</div><div class="spec-value">requests (ThreadPool)</div></div>
-                        <div class="spec-item"><div class="spec-label">Environment</div><div class="spec-value">python-dotenv</div></div>
-                        <div class="spec-item"><div class="spec-label">Threading</div><div class="spec-value">concurrent.futures</div></div>
-                        <div class="spec-item"><div class="spec-label">Version</div><div class="spec-value">5.0.2 PRO (Full Fixed Edition)</div></div>
-                    </div>
-
-                    <div class="section-title" style="font-size:20px;margin-bottom:16px;">External APIs</div>
-                    <div class="card-grid">
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg></div>
-                            <div class="card-title">Jikan API v4</div>
-                            <div class="card-desc">Unofficial MyAnimeList API for anime search, trending, upcoming, characters, and recommendations with automatic retry logic.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-                            <div class="card-title">AniList GraphQL</div>
-                            <div class="card-desc">Advanced anime/manga database with detailed metadata, streaming episodes, character info, and airing schedules via GraphQL queries.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-                            <div class="card-title">Nekos.best API</div>
-                            <div class="card-desc">Anime GIF provider for group welcome messages and entertainment features with category selection.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg></div>
-                            <div class="card-title">ShrinkMe.io</div>
-                            <div class="card-desc">URL shortening service integration with API key support and fallback endpoints for link management.</div>
-                        </div>
-                    </div>
-
-                    <div class="section-title" style="font-size:20px;margin:24px 0 16px;">Database Schema</div>
-                    <div class="code-block">
-<span class="comment"># MongoDB Collections</span>
-users          <span class="comment">- User profiles, coins, bans, referrals, streaks</span>
-files          <span class="comment">- Anime files with multi-quality storage</span>
-batches        <span class="comment">- Batch episode collections</span>
-links          <span class="comment">- Shareable deep links</span>
-settings       <span class="comment">- Global bot configuration</span>
-stats          <span class="comment">- Download counts, analytics</span>
-free_files     <span class="comment">- Free accessible content</span>
-requests       <span class="comment">- User anime requests with votes</span>
-broadcast_logs <span class="comment">- Broadcast delivery stats</span>
-user_activity  <span class="comment">- Detailed activity tracking</span>
-filters        <span class="comment">- Group chat auto-responses</span></div>
-                </div>
-
-                <!-- DEVELOPER SECTION -->
-                <div class="section" id="developer">
-                    <div class="section-title">Developer</div>
-                    <div class="section-subtitle">Meet the architect behind Anime Vault Bot</div>
-
-                    <div class="dev-card anim-scale">
-                        <div class="dev-avatar">MA</div>
-                        <div class="dev-name">Mohammad Arshad</div>
-                        <div class="dev-role">Full-Stack Developer & Bot Architect</div>
-                        <div class="dev-bio">
-                            A passionate software engineer from <strong>Uttar Pradesh, India</strong>, specializing in building high-performance Telegram bots and automation systems. With deep expertise in Python, MongoDB, and API integrations, Mohammad has crafted Anime Vault Bot as a production-grade content management platform serving thousands of users. His commitment to clean code, robust error handling, and user-centric design makes every project stand out.
-                        </div>
-
-                        <div style="display:flex;justify-content:center;gap:24px;margin:24px 0;">
-                            <div style="text-align:center;">
-                                <div style="font-size:24px;font-weight:800;color:var(--accent);">5+</div>
-                                <div style="font-size:12px;color:var(--text-muted);font-weight:500;">Years Coding</div>
-                            </div>
-                            <div style="text-align:center;">
-                                <div style="font-size:24px;font-weight:800;color:var(--accent);">50+</div>
-                                <div style="font-size:12px;color:var(--text-muted);font-weight:500;">Bot Commands</div>
-                            </div>
-                            <div style="text-align:center;">
-                                <div style="font-size:24px;font-weight:800;color:var(--accent);">6+</div>
-                                <div style="font-size:12px;color:var(--text-muted);font-weight:500;">APIs Integrated</div>
-                            </div>
-                        </div>
-
-                        <div class="dev-social">
-                            <a href="#" title="GitHub" onclick="showToast('GitHub profile link coming soon')">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                </svg>
-                            </a>
-                            <a href="#" title="Telegram" onclick="showToast('Telegram contact coming soon')">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.492-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                                </svg>
-                            </a>
-                            <a href="#" title="Google" onclick="showToast('Google profile coming soon')">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                                </svg>
-                            </a>
-                            <a href="#" title="Claude AI" onclick="showToast('Powered by Claude AI for development')">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="card" style="margin-top:20px;">
-                        <div class="card-title">About the Project</div>
-                        <div class="card-desc" style="line-height:1.8;">
-                            <strong>Anime Vault Bot v5.0 PRO</strong> represents the culmination of extensive development effort, featuring enterprise-level code architecture with comprehensive error handling, multi-layer caching systems, and seamless API integrations. The bot handles thousands of daily interactions with rock-solid stability, automatic retry mechanisms, and detailed activity logging. Every component is designed for scalability — from the ThreadPoolExecutor-based parallel processing to the MongoDB-backed persistent storage layer. This is not just a bot; it is a complete content distribution platform built with professional-grade software engineering practices.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ABOUT SECTION -->
-                <div class="section" id="about">
-                    <div class="section-title">About Anime Vault</div>
-                    <div class="section-subtitle">Project history, vision, and roadmap</div>
-
-                    <div class="card" style="margin-bottom:16px;">
-                        <div class="card-title">Project Timeline</div>
-                        <div class="timeline" style="margin-top:16px;">
-                            <div class="timeline-item">
-                                <div class="timeline-title">v1.0 — Initial Release</div>
-                                <div class="timeline-desc">Basic file upload and download functionality with Telegram Bot API</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">v2.0 — Quality System</div>
-                                <div class="timeline-desc">Multi-quality support, caption parsing, and quality selector buttons</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">v3.0 — Smart Search</div>
-                                <div class="timeline-desc">Jikan & AniList API integration, trending anime, recommendation engine</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">v4.0 — Economy & Admin</div>
-                                <div class="timeline-desc">PPV coin system, daily bonuses, referrals, full admin panel</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">v5.0 PRO — Full Fixed Edition</div>
-                                <div class="timeline-desc">Complete bug fixes, FSUB rewrite, auto-delete fixes, filter system, group welcome, broadcast stats</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-grid">
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                            <div class="card-title">Mission</div>
-                            <div class="card-desc">Deliver the most reliable and feature-rich anime content distribution platform on Telegram with professional-grade stability.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-                            <div class="card-title">Vision</div>
-                            <div class="card-desc">Build a self-sustaining ecosystem where anime enthusiasts discover, request, and enjoy content seamlessly within Telegram.</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-                            <div class="card-title">Values</div>
-                            <div class="card-desc">Reliability first, user privacy always, continuous improvement, and open communication with the community.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+<!-- ═══ LOADER ═══ -->
+<div id="loader">
+    <div class="loader-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
     </div>
+    <div class="loader-text">ANIME VAULT</div>
+    <div class="loader-sub">Initializing Web App</div>
+    <div class="loader-bar"><div class="loader-bar-inner"></div></div>
+    <div class="loader-ver">v5.0.2 PRO</div>
+</div>
 
-    <!-- Info Modal -->
-    <div class="modal-overlay" id="infoModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">Bot Information</div>
-                <button class="modal-close" onclick="closeModal('infoModal')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div style="text-align:center;margin-bottom:20px;">
-                    <div style="width:60px;height:60px;background:var(--accent);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    </div>
-                    <div style="font-size:18px;font-weight:700;color:var(--text-primary);">Anime Vault Bot</div>
-                    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">v5.0.2 PRO — Full Fixed Edition</div>
-                </div>
+<!-- ═══ APP ═══ -->
+<div class="app" id="app" style="opacity:0;transition:opacity .4s">
 
-                <div style="background:var(--sky-50);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
-                    <div class="spec-item"><div class="spec-label">Developer</div><div class="spec-value">Mohammad Arshad</div></div>
-                    <div class="spec-item"><div class="spec-label">Location</div><div class="spec-value">Uttar Pradesh, India</div></div>
-                    <div class="spec-item"><div class="spec-label">Platform</div><div class="spec-value">Telegram Bot API</div></div>
-                    <div class="spec-item"><div class="spec-label">Framework</div><div class="spec-value">Python + pyTelegramBotAPI</div></div>
-                    <div class="spec-item"><div class="spec-label">Database</div><div class="spec-value">MongoDB Atlas</div></div>
-                    <div class="spec-item"><div class="spec-label">Hosting</div><div class="spec-value">Render / VPS</div></div>
-                </div>
+<!-- Sidebar -->
+<div class="sidebar-overlay" id="sbOverlay" onclick="sbClose()"></div>
+<nav class="sidebar" id="sidebar">
+    <div class="sb-head">
+    <div class="logo">
+        <div class="logo-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div>
+        <div class="logo-text">Anime Vault</div>
+        <div class="logo-ver">v5.0 PRO</div>
+        </div>
+    </div>
+    </div>
+    <div class="sb-nav">
+    <button class="nav-item on" onclick="go('home',this)" data-sec="home">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    </button>
+    <button class="nav-item" onclick="go('features',this)" data-sec="features">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Features
+    </button>
+    <button class="nav-item" onclick="go('commands',this)" data-sec="commands">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>Commands
+    </button>
+    <button class="nav-item" onclick="go('tech',this)" data-sec="tech">
+        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Tech Stack
+    </button>
+    <button class="nav-item" onclick="go('developer',this)" data-sec="developer">
+        <svg viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Developer
+    </button>
+    <button class="nav-item" onclick="go('about',this)" data-sec="about">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>About
+    </button>
+    </div>
+    <div class="sb-foot">Made in Uttar Pradesh, India</div>
+</nav>
 
-                <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
-                    Anime Vault Bot is a professional-grade content management system designed for anime distribution on Telegram. It features intelligent episode parsing, multi-quality file delivery, a complete coin economy, anti-leech protection, and comprehensive admin tools. Built with enterprise-level Python architecture and integrated with multiple anime databases for accurate metadata.
-                </p>
+<!-- Main Content -->
+<main class="main">
+    <header class="header">
+    <div class="hdr">
+        <button class="menu-btn" onclick="sbToggle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+        <div class="page-sub" id="subTitle">Telegram Web App</div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+        <div class="status-on" id="statusDot">Online</div>
+        <button class="btn-s" style="padding:8px 14px;font-size:12px" onclick="modalShow('infoModal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        </button>
+    </div>
+    </header>
+
+    <div class="content" id="content">
+
+    <!-- HOME -->
+    <div class="sec on" id="home">
+        <div class="hero glass stag">
+        <div class="hero-bg"></div>
+        <div class="hero-orb"></div>
+        <div class="hero-inner">
+            <div class="hero-badge"><span class="hero-dot"></span>Bot Status: Operational</div>
+            <div class="hero-title">Welcome to <span>Anime Vault</span></div>
+            <div class="hero-desc">Enterprise-grade anime content management for Telegram. Smart search, multi-quality delivery, PPV economy, and powerful admin tools.</div>
+            <div class="hero-tags">
+            <span class="htag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Python 3</span>
+            <span class="htag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>MongoDB</span>
+            <span class="htag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Flask</span>
+            <span class="htag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Jikan API</span>
+            <span class="htag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>AniList</span>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('infoModal')">Close</button>
-                <button class="btn btn-primary" onclick="closeModal('infoModal');navTo('developer', null)">View Developer</button>
-            </div>
+        </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="uprofile glass stag d1" id="userProfile">
+        <div class="uavatar-fb" id="uavFallback">AV</div>
+        <img class="uavatar" id="uavImg" src="" alt="" style="display:none">
+        <div class="uinfo">
+            <div class="uname" id="uName">Loading...</div>
+            <div class="uhandle" id="uHandle">@username</div>
+            <div class="uid" id="uId">UID: ---</div>
+        </div>
+        <div class="ubadge">TG USER</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats stag d2">
+        <div class="stat"><div class="stat-n">50+</div><div class="stat-l">Commands</div></div>
+        <div class="stat"><div class="stat-n">5.0</div><div class="stat-l">Version</div></div>
+        <div class="stat"><div class="stat-n">6+</div><div class="stat-l">APIs</div></div>
+        <div class="stat"><div class="stat-n">99.9%</div><div class="stat-l">Uptime</div></div>
+        </div>
+
+        <div class="sec-t stag d3" style="font-size:18px;margin-bottom:14px">Core Capabilities</div>
+        <div class="grid">
+        <div class="card stag d3">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
+            <div class="card-title">Smart Upload System</div>
+            <div class="card-desc">Multi-quality anime uploads with auto episode parsing, AniList integration, and batch processing with live checklist tracking.</div>
+        </div>
+        <div class="card stag d4">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg></div>
+            <div class="card-title">Smart Search Engine</div>
+            <div class="card-desc">Multi-API anime search with Jikan, AniList GraphQL, and DB fallback. Relevance scoring and recommendation engine.</div>
+        </div>
+        <div class="card stag d4">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+            <div class="card-title">PPV Coin Economy</div>
+            <div class="card-desc">Full pay-per-view system with coin management, daily bonuses, referral rewards, streak tracking, and leaderboards.</div>
+        </div>
+        <div class="card stag d5">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="card-title">Anti-Leech Protection</div>
+            <div class="card-desc">Content protection with protected forwarding, auto-delete timers, watermark system, and secure delivery pipeline.</div>
+        </div>
+        <div class="card stag d5">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="card-title">FSUB Engine</div>
+            <div class="card-desc">Force subscription with public/private channel support, join request handling, invite links, and smart caching.</div>
+        </div>
+        <div class="card stag d6">
+            <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+            <div class="card-title">Broadcast Engine</div>
+            <div class="card-desc">Mass messaging with progress tracking, copy-forward support, pin capability, and detailed delivery statistics.</div>
+        </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--sky-950);color:#fff;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:500;z-index:2000;opacity:0;transition:all 0.3s ease;box-shadow:0 8px 32px rgba(0,0,0,0.3);"></div>
+    <!-- FEATURES -->
+    <div class="sec" id="features">
+        <div class="sec-t">Platform Features</div>
+        <div class="sec-s">Comprehensive feature set powering the Anime Vault ecosystem</div>
 
-    <script>
-        // ─── Telegram Web App Integration ───
-        let tg = null;
-        try {
-            tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
-            // Apply Telegram theme colors if available
-            if (tg.colorScheme === 'dark') {
-                document.documentElement.style.setProperty('--bg-primary', '#0c1222');
-                document.documentElement.style.setProperty('--bg-secondary', '#151e32');
-                document.documentElement.style.setProperty('--bg-card', '#1a2540');
-                document.documentElement.style.setProperty('--text-primary', '#e0f2fe');
-                document.documentElement.style.setProperty('--text-secondary', '#bae6fd');
-                document.documentElement.style.setProperty('--text-muted', '#7dd3fc');
-                document.documentElement.style.setProperty('--border', 'rgba(125,211,252,0.15)');
-                document.documentElement.style.setProperty('--bg-glass', 'rgba(21,30,50,0.85)');
-            }
-        } catch(e) {
-            console.log('Telegram WebApp not available:', e);
-        }
+        <div class="grid-2">
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div><div class="featt">Ultra Caption Parser</div><div class="featd">Extracts anime name, episode, quality, language, season</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><div class="featt">Multi-Quality Support</div><div class="featd">4K, 1080p, 720p, 480p, 360p, 240p handling</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="featt">Auto-Delete System</div><div class="featd">Configurable temp files with expiry warnings</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div><div class="featt">Layered Caching</div><div class="featd">Multi-tier cache for settings, FSUB, filters, anime</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="featt">Filter System</div><div class="featd">Group auto-response triggers with DMCA support</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="featt">Anime Requests</div><div class="featd">User request queue with voting system</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg></div><div><div class="featt">Watermark System</div><div class="featd">Text + image watermarking on file delivery</div></div></div>
+        <div class="feat"><div class="featicon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="featt">Activity Analytics</div><div class="featd">Detailed user activity tracking and summaries</div></div></div>
+        </div>
 
-        // ─── User Profile from Telegram ───
-        function loadUserProfile() {
-            const avatarEl = document.getElementById('userAvatar');
-            const fallbackEl = document.getElementById('userAvatarFallback');
-            const nameEl = document.getElementById('userName');
-            const usernameEl = document.getElementById('userUsername');
-            const idEl = document.getElementById('userId');
+        <div class="card" style="margin-top:6px">
+        <div class="card-title" style="margin-bottom:14px">API Integrations</div>
+        <div class="apig">
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg><div class="apin">Jikan API</div></div>
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><div class="apin">AniList</div></div>
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><div class="apin">Telegram API</div></div>
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg><div class="apin">MongoDB</div></div>
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div class="apin">Nekos.best</div></div>
+            <div class="apitem"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg><div class="apin">ShrinkMe</div></div>
+        </div>
+        </div>
+    </div>
 
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                const user = tg.initDataUnsafe.user;
-                const fullName = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
-                const initials = (user.first_name ? user.first_name[0] : '') + (user.last_name ? user.last_name[0] : '');
+    <!-- COMMANDS -->
+    <div class="sec" id="commands">
+        <div class="sec-t">Bot Commands</div>
+        <div class="sec-s">Complete command reference for users and administrators</div>
 
-                nameEl.textContent = fullName || 'Telegram User';
-                usernameEl.textContent = user.username ? '@' + user.username : 'No username set';
-                idEl.textContent = 'UID: ' + user.id;
+        <div class="cmdcat"><div class="cmdt">User Commands</div>
+        <div class="cmd"><div class="cmd-n">/start</div><div class="cmd-d">Initialize bot, show welcome card with anime info and navigation buttons</div></div>
+        <div class="cmd"><div class="cmd-n">/help</div><div class="cmd-d">Display complete help menu with all available commands</div></div>
+        <div class="cmd"><div class="cmd-n">/id</div><div class="cmd-d">Show your Telegram user ID and chat ID information</div></div>
+        <div class="cmd"><div class="cmd-n">/mycoins</div><div class="cmd-d">View your coin balance, download count, rank, and membership info</div></div>
+        <div class="cmd"><div class="cmd-n">/profile</div><div class="cmd-d">Display detailed profile card with streak, referrals, and status</div></div>
+        <div class="cmd"><div class="cmd-n">/search</div><div class="cmd-d">Search anime by name with multi-API smart search and recommendations</div></div>
+        <div class="cmd"><div class="cmd-n">/daily</div><div class="cmd-d">Claim daily coin bonus with streak tracking and progress bar</div></div>
+        <div class="cmd"><div class="cmd-n">/leaderboard</div><div class="cmd-d">View top users ranked by total downloads with medal system</div></div>
+        <div class="cmd"><div class="cmd-n">/top</div><div class="cmd-d">Show most popular downloaded anime in the database</div></div>
+        <div class="cmd"><div class="cmd-n">/recent</div><div class="cmd-d">Display recently uploaded episodes with quality info</div></div>
+        <div class="cmd"><div class="cmd-n">/trending</div><div class="cmd-d">Fetch current trending anime from Jikan API with images</div></div>
+        <div class="cmd"><div class="cmd-n">/request</div><div class="cmd-d">Submit an anime request with voting system support</div></div>
+        <div class="cmd"><div class="cmd-n">/requests</div><div class="cmd-d">View all pending anime requests with vote counts</div></div>
+        <div class="cmd"><div class="cmd-n">/referral</div><div class="cmd-d">Get your personal referral link and earnings summary</div></div>
+        </div>
 
-                if (user.photo_url) {
-                    avatarEl.src = user.photo_url;
-                    avatarEl.style.display = 'block';
-                    fallbackEl.style.display = 'none';
-                    avatarEl.onerror = function() {
-                        avatarEl.style.display = 'none';
-                        fallbackEl.style.display = 'flex';
-                        fallbackEl.textContent = initials || 'TG';
-                    };
-                } else {
-                    fallbackEl.textContent = initials || 'TG';
-                }
-            } else {
-                nameEl.textContent = 'Telegram User';
-                usernameEl.textContent = 'Open via Telegram for profile';
-                idEl.textContent = 'UID: Not Available';
-                fallbackEl.textContent = 'TG';
-            }
-        }
+        <div class="cmdcat"><div class="cmdt">Admin Commands</div>
+        <div class="cmd"><div class="cmd-n">/anime</div><div class="cmd-d">Start anime episode upload mode with quality selection</div></div>
+        <div class="cmd"><div class="cmd-n">/batch</div><div class="cmd-d">Upload multiple episodes in batch with range support</div></div>
+        <div class="cmd"><div class="cmd-n">/free</div><div class="cmd-d">Upload free files accessible without PPV</div></div>
+        <div class="cmd"><div class="cmd-n">/stats</div><div class="cmd-d">View comprehensive bot statistics and analytics</div></div>
+        <div class="cmd"><div class="cmd-n">/settings</div><div class="cmd-d">Configure bot settings via interactive panel</div></div>
+        <div class="cmd"><div class="cmd-n">/broadcast</div><div class="cmd-d">Send message to all users with progress tracking</div></div>
+        <div class="cmd"><div class="cmd-n">/broadcastpin</div><div class="cmd-d">Broadcast and auto-pin message for all users</div></div>
+        <div class="cmd"><div class="cmd-n">/ban</div><div class="cmd-d">Ban a user by ID or reply with reason logging</div></div>
+        <div class="cmd"><div class="cmd-n">/unban</div><div class="cmd-d">Remove ban from a user restoring full access</div></div>
+        <div class="cmd"><div class="cmd-n">/banlist</div><div class="cmd-d">Paginated list of all banned users with details</div></div>
+        <div class="cmd"><div class="cmd-n">/addcoins</div><div class="cmd-d">Add coins to a user's wallet</div></div>
+        <div class="cmd"><div class="cmd-n">/removecoins</div><div class="cmd-d">Deduct coins from a user's balance</div></div>
+        <div class="cmd"><div class="cmd-n">/checkcoins</div><div class="cmd-d">View any user's current coin balance</div></div>
+        <div class="cmd"><div class="cmd-n">/filter</div><div class="cmd-d">Create auto-response filter for group chats</div></div>
+        <div class="cmd"><div class="cmd-n">/filters</div><div class="cmd-d">List all configured filters with triggers</div></div>
+        <div class="cmd"><div class="cmd-n">/delfilter</div><div class="cmd-d">Remove a filter by index number</div></div>
+        </div>
 
-        // ─── Navigation ───
-        function navTo(sectionId, el) {
-            // Update nav items
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if (el) el.classList.add('active');
-            else {
-                const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
-                if (navItem) navItem.classList.add('active');
-            }
+        <div class="cmdcat"><div class="cmdt">Owner Commands</div>
+        <div class="cmd"><div class="cmd-n">/addadmin</div><div class="cmd-d">Promote a user to admin with full privileges</div></div>
+        <div class="cmd"><div class="cmd-n">/remadmin</div><div class="cmd-d">Demote an admin back to regular user</div></div>
+        <div class="cmd"><div class="cmd-n">/adminlist</div><div class="cmd-d">Display all admins with usernames and IDs</div></div>
+        <div class="cmd"><div class="cmd-n">/setdb</div><div class="cmd-d">Set database channel for file storage</div></div>
+        <div class="cmd"><div class="cmd-n">/setlog</div><div class="cmd-d">Configure log channel for activity tracking</div></div>
+        <div class="cmd"><div class="cmd-n">/addfsub</div><div class="cmd-d">Add force-subscription channel</div></div>
+        <div class="cmd"><div class="cmd-n">/remfsub</div><div class="cmd-d">Remove FSUB channel with cache clear</div></div>
+        <div class="cmd"><div class="cmd-n">/ppv</div><div class="cmd-d">Toggle pay-per-view system on/off</div></div>
+        <div class="cmd"><div class="cmd-n">/antileech</div><div class="cmd-d">Enable or disable content protection</div></div>
+        <div class="cmd"><div class="cmd-n">/autodelete</div><div class="cmd-d">Configure auto-delete timer for files</div></div>
+        </div>
+    </div>
 
-            // Update sections
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.classList.add('active');
-                // Update header title
-                const titles = {
-                    home: 'Dashboard',
-                    features: 'Features',
-                    commands: 'Commands',
-                    tech: 'Tech Stack',
-                    developer: 'Developer',
-                    about: 'About'
-                };
-                document.getElementById('pageTitle').textContent = titles[sectionId] || 'Dashboard';
-            }
+    <!-- TECH STACK -->
+    <div class="sec" id="tech">
+        <div class="sec-t">Technology Stack</div>
+        <div class="sec-s">Enterprise-grade architecture powering Anime Vault Bot v5.0 PRO</div>
 
-            // Close sidebar on mobile
-            closeSidebar();
+        <div class="card" style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:14px">Technical Specifications</div>
+        <div class="spec"><div class="specl">Language</div><div class="specv">Python 3.11+</div></div>
+        <div class="spec"><div class="specl">Bot Framework</div><div class="specv">pyTelegramBotAPI (telebot)</div></div>
+        <div class="spec"><div class="specl">Web Server</div><div class="specv">Flask (Keep-Alive)</div></div>
+        <div class="spec"><div class="specl">Database</div><div class="specv">MongoDB (pymongo)</div></div>
+        <div class="spec"><div class="specl">Scheduler</div><div class="specv">APScheduler</div></div>
+        <div class="spec"><div class="specl">HTTP Client</div><div class="specv">requests (ThreadPool)</div></div>
+        <div class="spec"><div class="specl">Environment</div><div class="specv">python-dotenv</div></div>
+        <div class="spec"><div class="specl">Threading</div><div class="specv">concurrent.futures</div></div>
+        <div class="spec"><div class="specl">Version</div><div class="specv">5.0.2 PRO (Full Fixed Edition)</div></div>
+        </div>
 
-            // Scroll to top
-            document.getElementById('contentArea').scrollTop = 0;
-        }
+        <div class="sec-t" style="font-size:18px;margin-bottom:14px">External APIs</div>
+        <div class="grid">
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg></div><div class="card-title">Jikan API v4</div><div class="card-desc">Unofficial MyAnimeList API for anime search, trending, upcoming, characters, and recommendations with automatic retry logic.</div></div>
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="card-title">AniList GraphQL</div><div class="card-desc">Advanced anime/manga database with detailed metadata, streaming episodes, character info, and airing schedules via GraphQL queries.</div></div>
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="card-title">Nekos.best API</div><div class="card-desc">Anime GIF provider for group welcome messages and entertainment features with category selection.</div></div>
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg></div><div class="card-title">ShrinkMe.io</div><div class="card-desc">URL shortening service integration with API key support and fallback endpoints for link management.</div></div>
+        </div>
 
-        // ─── Sidebar ───
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('show');
-        }
+        <div class="sec-t" style="font-size:18px;margin:22px 0 14px">Database Schema</div>
+        <div class="codeblock"><span class="cm"># MongoDB Collections</span>
+users          <span class="cm">- User profiles, coins, bans, referrals, streaks</span>
+files          <span class="cm">- Anime files with multi-quality storage</span>
+batches        <span class="cm">- Batch episode collections</span>
+links          <span class="cm">- Shareable deep links</span>
+settings       <span class="cm">- Global bot configuration</span>
+stats          <span class="cm">- Download counts, analytics</span>
+free_files     <span class="cm">- Free accessible content</span>
+requests       <span class="cm">- User anime requests with votes</span>
+broadcast_logs <span class="cm">- Broadcast delivery stats</span>
+user_activity  <span class="cm">- Detailed activity tracking</span>
+filters        <span class="cm">- Group chat auto-responses</span></div>
+    </div>
 
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.remove('show');
-        }
+    <!-- DEVELOPER -->
+    <div class="sec" id="developer">
+        <div class="sec-t">Developer</div>
+        <div class="sec-s">Meet the architect behind Anime Vault Bot</div>
 
-        // ─── Modal ───
-        function showModal(id) {
-            document.getElementById(id).classList.add('show');
-        }
+        <div class="devcard glass">
+        <div class="devavatar">MA</div>
+        <div class="devname">Mohammad Arshad</div>
+        <div class="devrole">Full-Stack Developer & Bot Architect</div>
+        <div class="devbio">A passionate software engineer from <strong>Uttar Pradesh, India</strong>, specializing in building high-performance Telegram bots and automation systems. With deep expertise in Python, MongoDB, and API integrations, Mohammad has crafted Anime Vault Bot as a production-grade content management platform serving thousands of users.</div>
+        <div class="devrow">
+            <div><div class="devn">5+</div><div class="devl">Years Coding</div></div>
+            <div><div class="devn">50+</div><div class="devl">Bot Commands</div></div>
+            <div><div class="devn">6+</div><div class="devl">APIs Integrated</div></div>
+        </div>
+        <div class="devsoc">
+            <a href="#" onclick="toast('GitHub profile link coming soon')" title="GitHub"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
+            <a href="#" onclick="toast('Telegram contact coming soon')" title="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.492-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+            <a href="#" onclick="toast('Google profile coming soon')" title="Google"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></a>
+            <a href="#" onclick="toast('Powered by Claude AI for development')" title="Claude"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></a>
+        </div>
+        </div>
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
+        <div class="card" style="margin-top:18px">
+        <div class="card-title">About the Project</div>
+        <div class="card-desc" style="line-height:1.8;margin-top:8px"><strong>Anime Vault Bot v5.0 PRO</strong> represents the culmination of extensive development effort, featuring enterprise-level code architecture with comprehensive error handling, multi-layer caching systems, and seamless API integrations. The bot handles thousands of daily interactions with rock-solid stability, automatic retry mechanisms, and detailed activity logging. Every component is designed for scalability — from the ThreadPoolExecutor-based parallel processing to the MongoDB-backed persistent storage layer.</div>
+        </div>
+    </div>
 
-        // ─── Toast ───
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(100px)';
-            }, 2500);
-        }
+    <!-- ABOUT -->
+    <div class="sec" id="about">
+        <div class="sec-t">About Anime Vault</div>
+        <div class="sec-s">Project history, vision, and roadmap</div>
 
-        // ─── Keyboard Shortcuts ───
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
-                closeSidebar();
-            }
-        });
+        <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Project Timeline</div>
+        <div class="tl" style="margin-top:14px">
+            <div class="tli"><div class="tlt">v1.0 — Initial Release</div><div class="tld">Basic file upload and download functionality with Telegram Bot API</div></div>
+            <div class="tli"><div class="tlt">v2.0 — Quality System</div><div class="tld">Multi-quality support, caption parsing, and quality selector buttons</div></div>
+            <div class="tli"><div class="tlt">v3.0 — Smart Search</div><div class="tld">Jikan & AniList API integration, trending anime, recommendation engine</div></div>
+            <div class="tli"><div class="tlt">v4.0 — Economy & Admin</div><div class="tld">PPV coin system, daily bonuses, referrals, full admin panel</div></div>
+            <div class="tli"><div class="tlt">v5.0 PRO — Full Fixed Edition</div><div class="tld">Complete bug fixes, FSUB rewrite, auto-delete fixes, filter system, group welcome, broadcast stats</div></div>
+        </div>
+        </div>
 
-        // ─── Init ───
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserProfile();
+        <div class="grid">
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="card-title">Mission</div><div class="card-desc">Deliver the most reliable and feature-rich anime content distribution platform on Telegram with professional-grade stability.</div></div>
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="card-title">Vision</div><div class="card-desc">Build a self-sustaining ecosystem where anime enthusiasts discover, request, and enjoy content seamlessly within Telegram.</div></div>
+        <div class="card"><div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="card-title">Values</div><div class="card-desc">Reliability first, user privacy always, continuous improvement, and open communication with the community.</div></div>
+        </div>
+    </div>
+    </div>
+</main>
+</div>
 
-            // Close modals on overlay click
-            document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) overlay.classList.remove('show');
-                });
-            });
-        });
-    </script>
+<!-- INFO MODAL -->
+<div class="modal-o" id="infoModal">
+<div class="modal">
+    <div class="modal-h"><div class="modal-t">Bot Information</div><button class="modal-x" onclick="modalHide('infoModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-b">
+    <div style="text-align:center;margin-bottom:18px">
+        <div style="width:56px;height:56px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:0 8px 28px rgba(14,165,233,.3)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div style="font-size:16px;font-weight:800;color:var(--text)">Anime Vault Bot</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">v5.0.2 PRO — Full Fixed Edition</div>
+    </div>
+    <div class="glass" style="padding:14px;margin-bottom:14px">
+        <div class="spec"><div class="specl">Developer</div><div class="specv">Mohammad Arshad</div></div>
+        <div class="spec"><div class="specl">Location</div><div class="specv">Uttar Pradesh, India</div></div>
+        <div class="spec"><div class="specl">Platform</div><div class="specv">Telegram Bot API</div></div>
+        <div class="spec"><div class="specl">Framework</div><div class="specv">Python + telebot</div></div>
+        <div class="spec"><div class="specl">Database</div><div class="specv">MongoDB Atlas</div></div>
+        <div class="spec"><div class="specl">Hosting</div><div class="specv">Render / VPS</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7">Anime Vault Bot is a professional-grade content management system for anime distribution on Telegram. Features intelligent episode parsing, multi-quality file delivery, a complete coin economy, anti-leech protection, and comprehensive admin tools.</p>
+    </div>
+    <div class="modal-f"><button class="btn btn-s" onclick="modalHide('infoModal')">Close</button><button class="btn btn-p" onclick="modalHide('infoModal');go('developer',null)">Developer</button></div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══ TELEGRAM WEBAPP ═══
+let tg=null;
+try{tg=window.Telegram.WebApp;tg.ready();tg.expand();document.body.setAttribute('data-theme',tg.colorScheme==='dark'?'dark':'light');tg.onEvent('themeChanged',()=>{document.body.setAttribute('data-theme',tg.colorScheme==='dark'?'dark':'light')})}catch(e){console.log('TG not available')}
+
+// ═══ LOADER ═══
+window.addEventListener('load',()=>{
+    setTimeout(()=>{
+        document.getElementById('loader').classList.add('done');
+        document.getElementById('app').style.opacity='1';
+    },1800);
+});
+
+// ═══ USER PROFILE ═══
+function loadUser(){
+    const av=document.getElementById('uavImg'),fb=document.getElementById('uavFallback'),nm=document.getElementById('uName'),un=document.getElementById('uHandle'),id=document.getElementById('uId');
+    if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user){
+        const u=tg.initDataUnsafe.user;
+        const fn=(u.first_name||'')+(u.last_name?' '+u.last_name:'');
+        const ab=(u.first_name?u.first_name[0]:'')+(u.last_name?u.last_name[0]:'');
+        nm.textContent=fn||'Telegram User';
+        un.textContent=u.username?'@'+u.username:'No username';
+        id.textContent='UID: '+u.id;
+        if(u.photo_url){av.src=u.photo_url;av.style.display='block';fb.style.display='none';av.onerror=function(){av.style.display='none';fb.style.display='flex';fb.textContent=ab||'TG'};}
+        else{fb.textContent=ab||'TG';}
+    }else{nm.textContent='Telegram User';un.textContent='Open via Telegram for profile';id.textContent='UID: N/A';fb.textContent='TG';}
+}
+
+// ═══ NAVIGATION ═══
+function go(id,el){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+    if(el)el.classList.add('on');
+    else{const n=document.querySelector('.nav-item[data-sec="'+id+'"]');if(n)n.classList.add('on');}
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+    const s=document.getElementById(id);if(s){s.classList.add('on');}
+    const t={home:'Dashboard',features:'Features',commands:'Commands',tech:'Tech Stack',developer:'Developer',about:'About'};
+    document.getElementById('pageTitle').textContent=t[id]||'Dashboard';
+    sbClose();document.getElementById('content').scrollTop=0;
+}
+
+// ═══ SIDEBAR ═══
+function sbToggle(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('show');}
+function sbClose(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('show');}
+
+// ═══ MODAL ═══
+function modalShow(id){document.getElementById(id).classList.add('show');}
+function modalHide(id){document.getElementById(id).classList.remove('show');}
+
+// ═══ TOAST ═══
+function toast(msg){
+    const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.modal-o.show').forEach(m=>m.classList.remove('show'));sbClose();}});
+
+// ═══ INIT ═══
+document.addEventListener('DOMContentLoaded',()=>{
+    loadUser();
+    document.querySelectorAll('.modal-o').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+});
+</script>
 </body>
 </html>
